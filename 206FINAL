@@ -18,9 +18,8 @@ def readDataFromAPI():
     for state in stateslist:
         url = base_url.format(state)
         r = requests.get(url)
-        # print(r.json().keys())
         infodata[state] = r.json()["results"]
-    print(infodata)
+    return infodata
 
 def setUpDatabase(db_name):
     path = '/Users/clairezuo/Desktop/'
@@ -28,9 +27,9 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-
 def setUpCrimeTable(infodata, cur, conn):
     cur.execute('DROP TABLE IF EXISTS crime_rate_data')
+    # conn.commit()
     cur.execute('CREATE TABLE crime_rate_data (state TEXT, offense TEXT, year INTEGER, actual_count INTEGER)') #can remove offense
 
     for item in infodata: 
@@ -39,11 +38,8 @@ def setUpCrimeTable(infodata, cur, conn):
         for record in list_name:
             actual_count = record['actual_count']
             year = record['data_year']
-            cur.execute("INSERT INTO crime_rate_data(state, offense, year, actual_count) VALUES(?,?,?,?)",(state, "burglary", year, actual_count))
+            cur.execute("INSERT INTO crime_rate_data(state, offense, year, actual_count)VALUES(?,?,?,?)",(state, "burglary", year, actual_count))
     conn.commit()
-
-
-
 
 def main():
     json_data = readDataFromAPI()
@@ -52,7 +48,7 @@ def main():
   
 
 
-    # conn.close()
+    conn.close()
 
 
 
