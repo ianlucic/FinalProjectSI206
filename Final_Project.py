@@ -15,6 +15,8 @@ import os
 import pandas as pd
 import io
 from urllib.request import urlopen
+import plotly.graph_objects as go
+import plotly.express as px
   
 def readDatafromAPI():
     url = "https://api.covidactnow.org/v2/states.json?apiKey=e1ad87ee3e3c4558a7e573a795f6ee60"
@@ -62,6 +64,21 @@ def storeData(json_data, cur, conn):
     
     conn.commit()
 
+def plotdata(json_data):
+    state_list = []
+    covid_list = []
+    for dict in json_data:
+        states = dict['state']
+        state_list.append(states)
+        total_cases = dict['actuals']['cases']
+        covid_list.append(total_cases)
+    print(state_list)
+    print(covid_list)
+    #MI_exams = [299, 389, 410, 577, 593, 936, 962, 1025, 1192, 1165]
+    #GA_exams = [692, 884, 1037, 1261, 1536, 1658, 2033, 1914, 2095, 2257]
+
+    fig = px.choropleth(locations= state_list, locationmode="USA-states", color= covid_list, scope="usa")
+    fig.show()
 
 def main():
     json_data = readDatafromAPI()
@@ -71,6 +88,8 @@ def main():
 
 
     conn.close()
+
+    plotdata(json_data)
 
 
         
