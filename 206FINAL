@@ -13,12 +13,17 @@ import json
 
 def readDataFromAPI():
     base_url = 'https://api.usa.gov/crime/fbi/sapi/api/data/supplemental/burglary/states/{}/OFFENSE/2019/2020?API_KEY=iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv'
-    infodata = {}
+    infodata = []
     stateslist = ['AL','AK','AS','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','PR','RI','SC','SD','TN','TX','UT','VT','VA','VI','WA','WV','WI','WY']
     for state in stateslist:
         url = base_url.format(state)
         r = requests.get(url)
-        infodata[state] = r.json()["results"]
+        results = r.json()["results"]
+        for result in results:
+            result["state"] = state
+            infodata.append(result)
+        # [state] = r.json()["results"]
+    print(infodata)
     return infodata
 
 def setUpDatabase(db_name):
@@ -27,25 +32,55 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def setUpCrimeTable(infodata, cur, conn):
-    cur.execute('DROP TABLE IF EXISTS crime_rate_data')
-    # conn.commit()
-    cur.execute('CREATE TABLE crime_rate_data (state TEXT, offense TEXT, year INTEGER, actual_count INTEGER)') #can remove offense
+def setUpCrimeTable(cur, conn):
+        #get the count of tables with the name
+    cur.execute('SELECT count(*) FROM crime_rate_data')
 
-    for item in infodata: 
-        state = item 
-        list_name = infodata[state]
-        for record in list_name:
-            actual_count = record['actual_count']
-            year = record['data_year']
-            cur.execute("INSERT INTO crime_rate_data(state, offense, year, actual_count)VALUES(?,?,?,?)",(state, "burglary", year, actual_count))
+    #if the count is 1, then table exists
+    if len(cur.fetchall()) != 0 : 
+        print('Table exists.')
+        return
+    else :
+        print('Table does not exist.')
+        cur.execute('DROP TABLE IF EXISTS crime_rate_data')
+        cur.execute('CREATE TABLE crime_rate_data (state TEXT, offense TEXT, year INTEGER, stolen INTEGER)') #can remove offense
     conn.commit()
 
+def storeData(infodata, cur, conn):
+    cur.execute("SELECT * FROM crime_rate_data")
+    num_rows = len(cur.fetchall())
+    if num_rows == 102:
+        return 
+    else:
+        for i in range(num_rows, num_rows+17):
+            year = infodata[i]['data_year']
+            stolen = infodata[i]['stolen_value_total']
+            state = infodata[i]['state']
+            cur.execute("INSERT INTO crime_rate_data(state, offense, year, stolen)VALUES(?,?,?,?)",(state, "burglary", year, stolen))
+    conn.commit()
+
+
+# def delete_table:
+
+    # for record in list_name:
+    #     actual_count = record['actual_count']
+    #     year = record['data_year']
+    #     cur.execute("INSERT INTO crime_rate_data(state, offense, year, actual_count)VALUES(?,?,?,?)",(state, "burglary", year, actual_count))
+    # conn.commit()
+
+
 def main():
-    json_data = readDataFromAPI()
+    infodata = readDataFromAPI()
     cur, conn = setUpDatabase('Database-Claire.db')
-    setUpCrimeTable(json_data, cur, conn)
-  
+    setUpCrimeTable(cur, conn)
+    storeData(infodata, cur, conn)
+    
+    
+    # for item in json_data: 
+    #     state = item 
+    #     list_name = json_data[state]
+    #     storeData(list_name, cur, conn)
+
 
 
     conn.close()
