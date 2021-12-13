@@ -8,8 +8,15 @@
 
 from bs4 import BeautifulSoup
 import sqlite3
+import unittest
 import requests
 import json
+import os
+import pandas as pd
+import io
+from urllib.request import urlopen
+import plotly.graph_objects as go
+import plotly.express as px
 
 def readDataFromAPI():
     base_url = 'https://api.usa.gov/crime/fbi/sapi/api/data/supplemental/burglary/states/{}/OFFENSE/2019/2020?API_KEY=iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv'
@@ -22,7 +29,6 @@ def readDataFromAPI():
         for result in results:
             result["state"] = state
             infodata.append(result)
-        # [state] = r.json()["results"]
     print(infodata)
     return infodata
 
@@ -54,11 +60,74 @@ def storeData(infodata, cur, conn):
     else:
         for i in range(num_rows, num_rows+17):
             year = infodata[i]['data_year']
-            stolen = infodata[i]['stolen_value_total']
+            stolen = infodata[i]['actual_count']
             state = infodata[i]['state']
             cur.execute("INSERT INTO crime_rate_data(state, offense, year, stolen)VALUES(?,?,?,?)",(state, "burglary", year, stolen))
     conn.commit()
 
+
+# def plotdata(infodata):
+#     year = infodata[i]['data_year']
+#     stolen = infodata[i]['stolen_value_total']
+#     state = infodata[i]['state']
+#     df = px.data.gapminder().query("continent=='Oceania'")
+#     fig = px.line(df, x= stolen, y= state, color= year )
+#     fig.show()
+
+# def plotdata(infodata):
+#     state_list = []
+#     crime_list = []
+#     for item in infodata:
+#         year = item['data_year']
+#         if year == 2019:
+#             state = item['state']
+#             state_list.append(state)
+#             stolen = item['stolen_value_total']
+#             crime_list.append(stolen)
+#         else:
+#             break
+#     print(state_list)
+#     print(crime_list)
+
+
+#     fig = px.choropleth(locations= state_list, locationmode="USA-states", color= crime_list, scope="usa")
+#     fig.show()
+
+
+# Add data
+low_2014 = [12.7, 14.3, 18.6, 35.5, 49.9, 58.0, 60.0, 58.6, 51.7, 45.2, 32.2, 29.1]
+
+def plotdata1(infodata):  
+    crime_2019 = [] 
+    crime_2020 = []
+    for item in infodata:
+        year = item['data_year']
+        if year == 2019:
+            stolen = item['actual_count']
+            crime_2019.append(stolen)
+        elif year == 2020:
+            stolen = item['actual_count']
+            crime_2020.append(stolen)
+    # print(crime_2019)
+    # print(crime_2020)
+
+    state = ['AL','AK','AS','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','PR','RI','SC','SD','TN','TX','UT','VT','VA','VI','WA','WV','WI','WY']
+
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=state, y = crime_2019, name = '2019',
+                         line=dict(color='lightgreen', width=3)))
+
+    fig.add_trace(go.Scatter(x=state, y= crime_2020, name='2020',
+                            line=dict(color='red', width=3)))
+ 
+    fig.update_layout(title='Crime Rate By State',
+                    xaxis_title='States',
+                    yaxis_title='Burglaries')
+
+
+    fig.show()
 
 # def delete_table:
 
@@ -68,22 +137,28 @@ def storeData(infodata, cur, conn):
     #     cur.execute("INSERT INTO crime_rate_data(state, offense, year, actual_count)VALUES(?,?,?,?)",(state, "burglary", year, actual_count))
     # conn.commit()
 
+# def hello(infodata):
+#     newlist = []
+#     for item in infodata:
+#         state = item['state']
+#         newlist.append(state)
+#         print(newlist)
+
+
 
 def main():
     infodata = readDataFromAPI()
     cur, conn = setUpDatabase('Database-Claire.db')
     setUpCrimeTable(cur, conn)
     storeData(infodata, cur, conn)
-    
-    
-    # for item in json_data: 
-    #     state = item 
-    #     list_name = json_data[state]
-    #     storeData(list_name, cur, conn)
-
+    plotdata1(infodata)
 
 
     conn.close()
+
+
+
+    # plotdata(infodata)
 
 
 
