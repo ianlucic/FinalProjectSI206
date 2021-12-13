@@ -32,7 +32,8 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def setUpCovidTable(json_data, cur, conn):
+def setUpCovidTable(cur, conn):
+    cur.execute('SELECT count(*) FROM covid_rate_data')
     #if the count is 1, then table exists
     if len(cur.fetchall()) != 0 : 
         print('Table exists.')
@@ -45,22 +46,41 @@ def setUpCovidTable(json_data, cur, conn):
     #print(json_data[0])
 
 def storeData(json_data, cur, conn):
-    for dict in json_data:
-        state = dict['state']
-        #print(state) 
-        total_cases = dict['actuals']['cases']
-        #print(total_cases)
-        total_deaths = dict['actuals']['deaths']
-        #print(total_deaths)
-        total_hospitalizations = dict['actuals']['hospitalBeds']['currentUsageCovid']
-        #print(total_hospitalizations)
-        icu_beds = dict['actuals']['icuBeds']['currentUsageCovid']
-        #print(icu_beds)
-        total_positive_tests = dict['actuals']['positiveTests']
-        total_negative_tests = dict['actuals']['negativeTests']
-        cur.execute('INSERT INTO covid_rate_data (state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests) Values(?,?,?,?,?,?,?)', (state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests))
-        cur_nrows = len(cur.fetchall())
+    cur.execute('SELECT * FROM covid_rate_data')
+    num_rows = len(cur.fetchall())
+    print(num_rows)
+    if num_rows == 53:
+        return 
+    else:
+        for i in range(num_rows, num_rows+1):
+            sql = "INSERT INTO covid_rate_data VALUES (?,?,?,?,?,?,?)"
+            state = json_data[i]['state']
+            total_cases = json_data[i]['actuals']['cases']
+            total_deaths = json_data[i]['actuals']['deaths']
+            total_hospitalizations = json_data[i]['actuals']['hospitalBeds']['currentUsageCovid']
+            icu_beds = json_data[i]['actuals']['icuBeds']['currentUsageCovid']
+            total_positive_tests = json_data[i]['actuals']['positiveTests']
+            total_negative_tests = json_data[i]['actuals']['negativeTests']
+            cur.execute(sql ,(state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests))
+
     
+            #for dict in json_data:
+                #state = dict['state']
+                #print(state) 
+                #total_cases = dict['actuals']['cases']
+                #print(total_cases)
+                #total_deaths = dict['actuals']['deaths']
+                #print(total_deaths)
+                #total_hospitalizations = dict['actuals']['hospitalBeds']['currentUsageCovid']
+                #print(total_hospitalizations)
+                #icu_beds = dict['actuals']['icuBeds']['currentUsageCovid']
+                #print(icu_beds)
+                #total_positive_tests = dict['actuals']['positiveTests']
+                #total_negative_tests = dict['actuals']['negativeTests']
+            #list_vals = [state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests]
+            #print(list_vals)
+                #cur.execute(sql, (state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests))
+            #cur.execute('INSERT INTO covid_rate_data (state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests) Values(?,?,?,?,?,?,?)', (state, total_cases, total_deaths, total_hospitalizations, icu_beds, total_positive_tests, total_negative_tests))
     
     conn.commit()
 
@@ -72,18 +92,20 @@ def plotdata(json_data):
         state_list.append(states)
         total_cases = dict['actuals']['cases']
         covid_list.append(total_cases)
-    print(state_list)
-    print(covid_list)
-    #MI_exams = [299, 389, 410, 577, 593, 936, 962, 1025, 1192, 1165]
-    #GA_exams = [692, 884, 1037, 1261, 1536, 1658, 2033, 1914, 2095, 2257]
-
+    #print(state_list)
+    #print(covid_list)
+    
+    
     fig = px.choropleth(locations= state_list, locationmode="USA-states", color= covid_list, scope="usa")
+    fig.update_layout(
+        title_text = 'COVID Cases in Each State')
     fig.show()
+
 
 def main():
     json_data = readDatafromAPI()
-    cur, conn = setUpDatabase('COVIDdata.db')
-    setUpCovidTable(json_data, cur, conn)
+    cur, conn = setUpDatabase('covid_data.db')
+    setUpCovidTable(cur, conn)
     storeData(json_data, cur, conn)
 
 
