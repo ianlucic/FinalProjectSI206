@@ -4,7 +4,7 @@
 # Your name: Sarayu Dandamudi
 # Your student id: 27141407
 # Your email: sarayud@umich.edu
-# List who you have worked with on this project: Ian Lucic, Sarayu Dandamudi 
+# List who you have worked with on this project: Ian Lucic, Claire Zhou 
 
 from bs4 import BeautifulSoup
 import sqlite3
@@ -32,12 +32,13 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def setUpCovidTable(cur, conn):
-    cur.execute('SELECT count(*) FROM covid_rate_data')
+def setUpCovidTable(data, cur, conn):
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='covid_rate_data';")
     #if the count is 1, then table exists
     if len(cur.fetchall()) != 0 : 
         print('Table exists.')
-    else :
+        return
+    else:
         print('Table does not exist.')
         cur.execute('DROP TABLE IF EXISTS covid_rate_data')
         cur.execute('CREATE TABLE covid_rate_data (state TEXT, total_cases INTEGER, total_deaths INTEGER, total_hospitalizations INTEGER, icu_beds INTEGER, total_positive_tests INTEGER, total_negative_tests INTEGER)')
@@ -101,17 +102,89 @@ def plotdata(json_data):
         title_text = 'COVID Cases in Each State')
     fig.show()
 
+def plot_together():
+
+    label_list = ['US cases','US deaths','Canada cases','Canada deaths']
+    value_list = [49799780, 795567, 1838277, 29923]
+
+    fig = go.Figure(data=[go.Pie(labels=label_list, values=value_list)])
+    color_list = ['#FFD700', '#1E90FF', '#FFA500', '#9ACD32']
+    fig.update_traces(hoverinfo='label+percent', textfont_size=20,
+                  marker=dict(colors=color_list))
+    fig.show()
+
+def USA_covid_total(json_data):
+    total_cases = []
+    for dict in json_data:
+        cases = dict['actuals']['cases']
+        total_cases.append(cases)
+    total = 0
+    for i in total_cases:
+        total += i
+    print("The total number of COVID cases in USA: " + str(total))
+    return total
+
+def USA_deaths_total(json_data):
+    total_deaths = []
+    for dict in json_data:
+        deaths = dict['actuals']['deaths']
+        total_deaths.append(deaths)
+    total = 0
+    for i in total_deaths:
+        total+= i
+    print("The total number of deaths in USA: " + str(total))
+    return total
+
+def USA_perecentage(json_data):
+    total_cases_list = []
+    total_deaths_list = []
+    for dict in json_data:
+        cases = dict['actuals']['cases']
+        total_cases_list.append(cases)
+    total_cases = 0
+    for i in total_cases_list:
+        total_cases += i
+    total_US_population = 333807743
+
+    for dict in json_data:
+        deaths = dict['actuals']['deaths']
+        total_deaths_list.append(deaths)
+    total_deaths = 0
+    for i in total_deaths_list:
+        total_deaths += i
+    
+    percentage_cases = (total_cases / total_US_population) * 100
+    percentage_deaths = (total_deaths / total_US_population) * 100
+    print("The percentage of COVID cases in USA: " + str(round(percentage_cases, 2)))
+    print("The percentage of COVID deaths in USA: " + str(round(percentage_deaths, 2)))
+
+def USA_average_cases(json_data):
+    total_cases = []
+    for dict in json_data:
+        cases = dict['actuals']['cases']
+        total_cases.append(cases)
+    total = 0
+    for i in total_cases:
+        total += i
+    average = total // len(total_cases)
+    print("The average number of COVID cases in USA: " + str(average))
+    return average
 
 def main():
     json_data = readDatafromAPI()
-    cur, conn = setUpDatabase('covid_data.db')
-    setUpCovidTable(cur, conn)
+    cur, conn = setUpDatabase('covid_test4.db')
+    setUpCovidTable(json_data, cur, conn)
     storeData(json_data, cur, conn)
 
 
     conn.close()
 
-    plotdata(json_data)
+    #plot_together()
+    #plotdata(json_data)
+    USA_covid_total(json_data)
+    USA_deaths_total(json_data)
+    USA_perecentage(json_data)
+    USA_average_cases(json_data)
 
 
         
