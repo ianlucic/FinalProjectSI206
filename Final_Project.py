@@ -102,13 +102,32 @@ def plotdata(json_data):
         title_text = 'COVID Cases in Each State')
     fig.show()
 
+def plot_line(json_data):
+    state_list = []
+    covid_list = []
+    for d in json_data:
+        states = d['state']
+        state_list.append(states)
+        total_cases = d['actuals']['cases']
+        covid_list.append(total_cases)
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=state_list, y = covid_list, name='2020',
+                         line=dict(color='blue', width=3)))
+ 
+    fig.update_layout(title='US Covid Cases',
+                    xaxis_title='States',
+                    yaxis_title='Covid Cases')
+    fig.show()
+
 def plot_together():
 
-    label_list = ['US cases','US deaths','Canada cases','Canada deaths']
-    value_list = [49799780, 795567, 1838277, 29923]
+    label_list = ['US cases','Canada cases']
+    value_list = [49799780, 1838277]
 
     fig = go.Figure(data=[go.Pie(labels=label_list, values=value_list)])
-    color_list = ['#FFD700', '#1E90FF', '#FFA500', '#9ACD32']
+    color_list = ['#FF0000', '#000080']
     fig.update_traces(hoverinfo='label+percent', textfont_size=20,
                   marker=dict(colors=color_list))
     fig.show()
@@ -169,6 +188,9 @@ def USA_average_cases(json_data):
     average = total // len(total_cases)
     print("The average number of COVID cases in USA: " + str(average))
     return average
+        
+    
+
 
 def main():
     json_data = readDatafromAPI()
@@ -179,8 +201,10 @@ def main():
 
     conn.close()
 
-    #plot_together()
-    #plotdata(json_data)
+
+    plot_together()
+    plot_line(json_data)
+    plotdata(json_data)
     USA_covid_total(json_data)
     USA_deaths_total(json_data)
     USA_perecentage(json_data)
