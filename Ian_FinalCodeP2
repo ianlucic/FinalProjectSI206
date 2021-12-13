@@ -1,0 +1,37 @@
+import requests
+import unittest
+import sqlite3
+import json
+import os
+import pandas as pd
+import io
+import plotly.graph_objects as go
+import plotly.express as px
+
+# FALL 2021
+# SI 206
+# Final Project
+# Your name: Ian Lucic
+# Your student id: 6721 2860
+# Your email: ianlucic@umich.edu
+# List who you have worked with on this project: Claire Zuo, Sarayu Dandamudi 
+
+def CanadaCOVIDCalulation_Avg(num):
+    sum_num = 0
+    for i in num:
+        sum_num = sum_num + i
+    avg = sum_num / len(num)
+    return avg
+print('The average number of covid cases in Canada is:', round(CanadaCOVIDCalulation_Avg([632147, 464228, 338428, 222013, 81817, 69507, 9366, 8591, 2076, 2069, 1667, 676, 397])))
+
+def CanadaRECOVEREDCalulation_Avg(num):
+    sum_num = 0
+    for i in num:
+        sum_num = sum_num + i
+    avg = sum_num / len(num)
+    return avg
+print('The average number of covid recoveries in Canada is:', round(CanadaRECOVEREDCalulation_Avg([611266,438983,331097,216542,80268,66471,8255,8244,2046,2034,1509,670,374])))
+
+
+
+
