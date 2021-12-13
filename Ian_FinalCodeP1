@@ -6,6 +6,14 @@ import os
 import pandas as pd
 import io
 
+# FALL 2021
+# SI 206
+# Final Project
+# Your name: Ian Lucic
+# Your student id: 6721 2860
+# Your email: ianlucic@umich.edu
+# List who you have worked with on this project: Claire Zuo, Sarayu Dandamudi 
+
 
 # this method is pretty simple - it just creates the server connection
 def create_connection(db_file):
