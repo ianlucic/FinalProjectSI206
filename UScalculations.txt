@@ -1,5 +1,0 @@
-The total number of COVID cases in USA: 49799780
-The total number of deaths in USA: 795567
-The percentage of COVID cases in USA: 14.92
-The percentage of COVID deaths in USA: 0.24
-The average number of COVID cases in USA: 939618
