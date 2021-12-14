@@ -1,0 +1,2 @@
+The average amount of burglaries per state in 2019 was: 18682
+The average amount of burglaries per state in 2020 was: 16733

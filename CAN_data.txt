@@ -1,0 +1,3 @@
+The total number of COVID cases in Canada: 1832982
+The average number of COVID cases across all Canadian provinces: 140999
+The percentage of COVID cases in Canada: 4.856590855943198%
