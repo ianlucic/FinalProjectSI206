@@ -24,6 +24,11 @@ def CanadaCOVIDCalulation_Avg(num):
     return avg
 print('The average number of covid cases in Canada is:', round(CanadaCOVIDCalulation_Avg([632147, 464228, 338428, 222013, 81817, 69507, 9366, 8591, 2076, 2069, 1667, 676, 397])))
 
+#Canada COVID Percentage
+def CanadaPercentage(population, cases):
+    CanadaPercentage = 100 * float(population)/float(cases)
+    return str(CanadaPercentage) + "%"
+print('The percantage of covid cases in Canada is:', CanadaPercentage(1832982, 37742154))
 
 #Canada Province Data Graph
 provinces = ['ON', 'QC', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'YT', 'NU']
@@ -33,7 +38,7 @@ fig = go.Figure(data = [
     go.Bar(name = "COVID Cases", x=provinces, y=Provinces_Covid_Data, marker_color = 'rgb(213,70,70)')])
 title_str = "Total Number of COVID Cases in Each Canadian Province"
 fig.update_layout(title = title_str, xaxis_tickangle=0, barmode='group', xaxis = {'tickmode':'linear'}, font_family="Futura", font_color="black", title_font_family="Futura", title_font_color="rgb(213,70,70)", 
-font=dict(size=20))
+font=dict(size=30))
 fig.show()
 
 #Canada Total Deaths and COVID Graph
@@ -44,7 +49,7 @@ fig = go.Figure(data=[
     go.Bar(name='COVID Cases', x=Canada_Data, y=[1832982]),
     go.Bar(name='COVID Deaths', x=Canada_Data, y=[29923])
 ])
-fig.update_layout(title = title_str, xaxis_tickangle=0, barmode='group', xaxis = {'tickmode':'linear'}, font_family="Futura", font_color="black", title_font_family="Futura", title_font_color="black", font=dict(size=20))
+fig.update_layout(title = title_str, xaxis_tickangle=0, barmode='group', xaxis = {'tickmode':'linear'}, font_family="Futura", font_color="black", title_font_family="Futura", title_font_color="black", font=dict(size=30))
 fig.show()
 
 #United States Deaths and COVID Graph
@@ -55,8 +60,6 @@ fig = go.Figure(data=[
     go.Bar(name='COVID Cases', x=US_Data, y=[49763426]),
     go.Bar(name='COVID Deaths', x=US_Data, y=[795372])
 ])
-fig.update_layout(title = title_str, xaxis_tickangle=0, barmode='group', xaxis = {'tickmode':'linear'}, font_family="Futura", font_color="black", title_font_family="Futura", title_font_color="black", font=dict(size=20))
+fig.update_layout(title = title_str, xaxis_tickangle=0, barmode='group', xaxis = {'tickmode':'linear'}, font_family="Futura", font_color="black", title_font_family="Futura", title_font_color="black", font=dict(size=30))
 fig.show()
-
-
 
